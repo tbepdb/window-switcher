@@ -1,0 +1,11 @@
+{
+"extension-id": "window-switcher",
+"uuid": "window-switcher@gnome-shell-extensions.tbepdb.github.com",
+"settings-schema": "org.gnome.shell.extensions.window-switcher",
+"gettext-domain": "gnome-shell-extensions",
+"name": "WindowSwitcher",
+"description": "Provide multiple window based switchers.",
+"original-authors": [  "https://github.com/tbepdb"],
+"shell-version": [ "3.16", "3.18"],
+"url": "https://github.com/tbepdb/window-switcher"
+}

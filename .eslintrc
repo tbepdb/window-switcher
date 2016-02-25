@@ -1,0 +1,36 @@
+{
+  'extends': 'es/2015/server',
+  'env': {
+    'es6': true,
+  },
+  'ecmaFeatures': {
+    'blockBindings': true,                     // enable let and const (aka block bindings)
+    'classes': true,                           // enable classes
+    'forOf': true,
+  },
+  'rules' : {
+    'spaced-comment': 0,
+    'no-inline-comments': 0,
+    'no-mixed-requires': 0,
+    'no-multi-spaces': [2, { exceptions: {'VariableDeclarator': true, 'VariableDeclaration': true } }],
+    'indent': [2, 2],
+    'camelcase': 0,
+    'func-style': [2, 'declaration'],
+    'newline-after-var': 0,
+    'array-bracket-spacing': 0,
+    'object-curly-spacing': 0,
+    'padded-blocks': 0,
+    'vars-on-top': 0,
+    'sort-vars': 0,
+    'no-extend-native': [2, {'exceptions': ['Object', 'String']}],
+    'handle-callback-err': 0,
+    'no-process-env': 0,
+    'operator-assignment': [2, 'never'],
+    'lines-around-comment': 0,
+    'no-underscore-dangle': 0,      // disallow dangling underscores in identifiers
+    'no-shadow': 0,
+    'no-warning-comments': 0,
+    'new-cap': 0,
+    'no-nested-ternary': 0,
+  }
+}
