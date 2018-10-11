@@ -9,11 +9,72 @@ const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 
-const im_windows = ['^Skype', '^Empathy', '^Pidgin', '^ViberPC'];
+const im_windows = [
+  {
+    function: 'get_title',
+    pattern: /^Hangout/
+  },
+  {
+    function: 'get_title',
+    pattern: /^.*WhatsApp$/
+  },
+  {
+    function: 'get_title',
+    pattern: /^Brick: /
+  },
+  {
+    function: 'get_title',
+    pattern: /^Telegram/
+  },
+  {
+    function: 'get_title',
+    pattern: /^Google.{0,}Hangouts/
+  },
+  {
+    function: 'get_title',
+    pattern: /^Google\sHangouts/
+  },
+  {
+    function: 'get_title',
+    pattern: /^YakYak/
+  },
+  {
+    function: 'get_wm_class',
+    pattern: /^Skype/
+  },
+  {
+    function: 'get_title',
+    pattern: /^Skype/
+  },
+  {
+    function: 'get_wm_class',
+    pattern: /^skypeforlinux/
+  },
+  {
+    function: 'get_wm_class',
+    pattern: /^Empathy/
+  },
+  {
+    function: 'get_wm_class',
+    pattern: /^Pidgin/
+  },
+  {
+    function: 'get_wm_class',
+    pattern: /^crx_oonccmmafcaodljbcgobdbknmbljiafh/
+  },
+  {
+    function: 'get_wm_class',
+    pattern: /^ViberPC/
+  },
+  {
+    function: 'get_wm_class',
+    pattern: /^Slack/
+  }];
 const rules = {
   'all':  {
   },
   'im': {
+    stick: true,
     name: 'im',
     include: im_windows
   },
@@ -37,17 +98,31 @@ const RuleWindowSwitcherPopup = new Lang.Class({
     },
     _try_rule : function (window) {
       function p_accept(patern, string) {
-        return new RegExp(patern).test(string);
+        return patern.test(string);
+      }
+      function w_accept(rule, window) {
+        if (rule.pattern && rule.function && window) {
+          if (window[rule.function] && typeof window[rule.function] === 'function') {
+            try {
+              let win_str = window[rule.function]();
+              return p_accept(rule.pattern, win_str);
+            } catch (e) {
+              return false;
+            }
+          } else {
+            return false;
+          }
+        } else {
+          return false;
+        }
       }
       let rule = this.rule;
       let include = false, exclude = false;
-      let win_str = window.get_wm_class();
       if (rule) {
         if (rule.include) {
           for (let i = 0; i < rule.include.length; i++) {
             let inc = rule.include[i];
-            let win_str = window.get_wm_class();
-            if (p_accept(inc, win_str)) {
+            if (w_accept(inc, window)) {
               include = true;
               i = rule.include.length;
             }
@@ -58,7 +133,7 @@ const RuleWindowSwitcherPopup = new Lang.Class({
         if (rule.exclude) {
           for (let i = 0; i < rule.exclude.length; i++) {
             let exc = rule.exclude[i];
-            if (p_accept(exc, win_str)) {
+            if (w_accept(exc, window)) {
               exclude = true;
               i = rule.exclude.length;
             }
@@ -73,7 +148,7 @@ const RuleWindowSwitcherPopup = new Lang.Class({
       }
     },
     _getWindowList: function() {
-        let workspace = this._settings.get_boolean('current-workspace-only') ? global.screen.get_active_workspace() : null;
+        let workspace = this._settings.get_boolean('current-workspace-only') ? global.workspace_manager.get_active_workspace() : null;
         let res = [];
         let active_window = null;
         let need_add_active = false;
@@ -116,10 +191,11 @@ const RuleWindowSwitcherExt = new Lang.Class({
     Name: 'RuleWindowSwitcherExt',
     _init: function () {
     },
-    _startWindowSwitcher: function (display, screen, window, binding) {
+    _startWindowSwitcher: function (display, window, binding) {
       /*
+      global.log('*****', binding, rule);
       let [win, action, rule, target] = binding.get_name().split('-');
-      //global.log('*****', binding, rule, binding.get_name(), binding.get_action());
+      global.log('*****', binding, rule);
       let tabPopup = new RuleWindowSwitcherPopup(rules[rule]);
       */
       let tabPopup = null;
@@ -127,7 +203,7 @@ const RuleWindowSwitcherExt = new Lang.Class({
       if (binding.get_name() === 'switch-applications' || binding.get_name() === 'switch-applications-backward') {
         //global.log('************** rule not_im');
         tabPopup = new RuleWindowSwitcherPopup(rules.not_im);
-      } else if (binding.get_name() === 'switch-group' || binding.get_name() === 'switch-group-backward') {
+      } else if (binding.get_name() === 'switch-windows' || binding.get_name() === 'switch-windows-backward') {
         //global.log('************** rule im');
         tabPopup = new RuleWindowSwitcherPopup(rules.im, true);
       }
@@ -136,55 +212,20 @@ const RuleWindowSwitcherExt = new Lang.Class({
       }
     },
     enable: function () {
-      //AltTab.APP_ICON_SIZE = 48;
-      //setKeybinding('switch-window', Lang.bind(Main.wm, this._startWindowSwitcher));
+      setKeybinding('switch-windows', Lang.bind(Main.wm, this._startWindowSwitcher));
       setKeybinding('switch-applications', Lang.bind(Main.wm, this._startWindowSwitcher));
-      setKeybinding('switch-group', Lang.bind(Main.wm, this._startWindowSwitcher));
       setKeybinding('switch-applications-backward', Lang.bind(Main.wm, this._startWindowSwitcher));
-      setKeybinding('switch-group-backward', Lang.bind(Main.wm, this._startWindowSwitcher));
-      //setKeybinding('switch-window-backward', Lang.bind(Main.wm, this._startWindowSwitcher));
+      setKeybinding('switch-windows-backward', Lang.bind(Main.wm, this._startWindowSwitcher));
 
 
-      /*
-      this._settings = Convenience.getSettings();
-      global.log('setting', this._settings);
-
-      Main.wm.setCustomKeybindingHandler('window-switch-all-forward',
-        Shell.ActionMode.NORMAL,
-        Lang.bind(this, this._startWindowSwitcher)
-      );
-      Main.wm.addKeybinding(
-        'window-switch-all-forward',
-        this._settings,
-        Meta.KeyBindingFlags.NONE,
-        Shell.ActionMode.NORMAL,
-        Lang.bind(this, Lang.bind(this, this._startWindowSwitcher))
-      );
-      Main.wm.setCustomKeybindingHandler('window-switch-all-backward',
-        Shell.ActionMode.NORMAL,
-        Lang.bind(this, this._startWindowSwitcher)
-      );
-      Main.wm.addKeybinding(
-        'window-switch-all-backward',
-        this._settings,
-        Meta.KeyBindingFlags.NONE,
-        Shell.ActionMode.NORMAL,
-        Lang.bind(this, Lang.bind(this, this._startWindowSwitcher))
-      );
-      */
     },
     disable: function () {
-      //AltTab.APP_ICON_SIZE = 96;
-      //setKeybinding('switch-window', Lang.bind(Main.wm, Main.wm._startWindowSwitcher));
-      //setKeybinding('switch-window-backward', Lang.bind(Main.wm, Main.wm._startWindowSwitcher));
+      setKeybinding('switch-windows', Lang.bind(Main.wm, Main.wm._startWindowSwitcher));
+      setKeybinding('switch-windows-backward', Lang.bind(Main.wm, Main.wm._startWindowSwitcher));
       setKeybinding('switch-applications', Lang.bind(Main.wm, Main.wm._startAppSwitcher));
       setKeybinding('switch-group', Lang.bind(Main.wm, Main.wm._startAppSwitcher));
       setKeybinding('switch-applications-backward', Lang.bind(Main.wm, Main.wm._startAppSwitcher));
       setKeybinding('switch-group-backward', Lang.bind(Main.wm, Main.wm._startAppSwitcher));
-      /*
-      Main.wm.removeKeybinding('window-switch-all-forward');
-      Main.wm.removeKeybinding('window-switch-all-backward');
-      */
     }
 });
 

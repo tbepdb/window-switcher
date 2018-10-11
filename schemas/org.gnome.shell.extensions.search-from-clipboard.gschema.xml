@@ -2,12 +2,8 @@
 <schemalist gettext-domain="gnome-shell-extensions">
 
   <schema path="/org/gnome/shell/extensions/window-switcher/" id="org.gnome.shell.extensions.window-switcher">
-
-    <key type="as" name="window-switch-all-forward">
-      <default><![CDATA[['<Super><Tab>']]]></default>
-    </key>
-    <key type="as" name="window-switch-all-backward">
-      <default><![CDATA[['<Super><Shift><Tab>']]]></default>
+    <key type="as" name="im-windows">
+      <default>[]></default>
     </key>
   </schema>
 </schemalist>
