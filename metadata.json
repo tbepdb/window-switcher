@@ -3,6 +3,8 @@
   "description": "Provide multiple window based switchers.",
   "uuid": "window-switcher@tbepdb",
   "shell-version": [
-    "3.34"
+    "3.34",
+    "40.0",
+    "41.0"
   ]
 }

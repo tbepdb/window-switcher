@@ -58,6 +58,10 @@ const im_windows = [
     {
       function: 'get_wm_class',
       pattern: /^Slack/
+    },
+    {
+      function: 'get_wm_class',
+      pattern: /^discord/
     }];
 var rules = {
     'all':  {
