@@ -12,7 +12,7 @@ const im_windows = [
       pattern: /^Brick: /
     },
     {
-      function: 'get_title',
+      function: 'get_wm_class',
       pattern: /^Telegram/
     },
     {
