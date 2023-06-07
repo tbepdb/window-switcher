@@ -8,12 +8,16 @@ const im_windows = [
       pattern: /^.*WhatsApp$/
     },
     {
+        function: 'get_title',
+        pattern: /^WhatsApp.*$/
+      },
+      {
       function: 'get_title',
       pattern: /^Brick: /
     },
     {
       function: 'get_wm_class',
-      pattern: /^Telegram/
+      pattern: /^org.telegram/
     },
     {
       function: 'get_title',
