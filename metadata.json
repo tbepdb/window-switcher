@@ -5,6 +5,7 @@
   "gettext-domain": "gnome-shell-extension-window-switcher",
   "settings-schema": "org.gnome.shell.extensions.window-switcher",
   "uuid": "window-switcher@tbepdb",
+  "url": "https://github.com/tbepdb/window-switcher",
   "shell-version": [
     "44.0",
     "43.0",
