@@ -1,13 +1,13 @@
 {
   "name": "WindowSwitcher",
+  "extension-id": "window-switcher",
   "description": "Provide multiple window based switchers.",
+  "gettext-domain": "gnome-shell-extension-window-switcher",
+  "settings-schema": "org.gnome.shell.extensions.window-switcher",
   "uuid": "window-switcher@tbepdb",
   "shell-version": [
-    "3.34",
-    "40.0",
-    "42.0",
-    "43.0",
     "44.0",
-    "41.0"
+    "43.0",
+    "42.0"
   ]
 }

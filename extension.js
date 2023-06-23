@@ -1,101 +1,63 @@
-'use strict';
-const Me = imports.misc.extensionUtils.getCurrentExtension();
+// -*- mode: js2; indent-tabs-mode: nil; js2-basic-offset: 4 -*-
+// Start apps on custom workspaces
+/* exported init enable disable */
+
+const {Shell, Meta} = imports.gi;
 const Lang = imports.lang;
-const Meta = imports.gi.Meta;
-const Shell = imports.gi.Shell;
 
-const AltTab = imports.ui.altTab;
+const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
-
 const { GObject } = imports.gi;
-const { im_windows, rules } = Me.imports.rules;
+const AltTab = imports.ui.altTab;
 
-function p_accept(patern, string) {
-    return patern.test(string);
-}
+let _appData;
+let windowSwitcher;
 
-function w_accept(rule, window) {
-    if (rule.pattern && rule.function && window) {
-        // global.log('**************tr',  rule.pattern, rule.function);
-        if (window[rule.function] && typeof window[rule.function] === 'function') {
-            try {
-                let win_str = window[rule.function]();
-                // global.log('**************tr', win_str, rule.pattern, p_accept(rule.pattern, win_str));
-                return p_accept(rule.pattern, win_str);
-            } catch (e) {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    } else {
-        return false;
-    }
-}
-
-const RuleWindowSwitcherPopup = GObject.registerClass(
-    class RuleWindowSwitcherPopup extends AltTab.WindowSwitcherPopup {
-
+const WindowSwitcherPopup = GObject.registerClass(
+    class WindowSwitcherPopup extends AltTab.WindowSwitcherPopup {
+    all_desktops = true;
+    is_invert = false;
     _init() {
         super._init();
     }
-    _try_rule(window) {
-        let rule = this.rule;
-        let include = false, exclude = false;
-        if (rule) {
-            if (rule.include) {
-                for (let i = 0; i < rule.include.length; i++) {
-                    let inc = rule.include[i];
-                    if (w_accept(inc, window)) {
-                        include = true;
-                        i = rule.include.length;
-                    }
-                }
-            } else {
-                include = true;
-            }
-            if (rule.exclude) {
-                for (let i = 0; i < rule.exclude.length; i++) {
-                    let exc = rule.exclude[i];
-                    if (w_accept(exc, window)) {
-                        exclude = true;
-                        i = rule.exclude.length;
-                    }
-                }
-            } else {
-                exclude = false;
-            }
-            //global.log('**************tr', JSON.stringify(rule), include && !exclude, include, exclude);
-            return include && !exclude;
-        } else {
-            return true;
+
+    _getRuleWindowList () {
+        const windows =  []
+        for (const app of _appData) {
+            windows.push(...app.get_windows());
         }
+        return windows;
     }
+
+    _windowTry(ruleWindows, window) {
+        return this.is_invert ? !ruleWindows.includes(window) : ruleWindows.includes(window);
+    }
+
     _getWindowList() {
-        //global.log('**************_getWindowList');
+        //global.log('**************_getWindowList', this.is_invert);
         let workspace = global.workspace_manager.get_active_workspace();
-        let res = [];
+        let windows = [];
         let active_window = null;
         let need_add_active = false;
         if (this.all_desktops) {
             workspace = null;
         }
-        let windows = global.display.get_tab_list(Meta.TabList.NORMAL, workspace);
-        for (let i in windows) {
-            let window = windows[i];
+        const ruleWindows = this._getRuleWindowList();
+        // global.log('**************_getWindowList', ruleWindows, global.display.get_tab_list(Meta.TabList.NORMAL, workspace));
+        for (let window of global.display.get_tab_list(Meta.TabList.NORMAL, workspace)) {
             if (window.has_focus()) {
                 active_window = window;
-                need_add_active = !this._try_rule(window);
+                need_add_active = !(this._windowTry(ruleWindows, window));
             }
-            if (this._try_rule(window)) {
-                res.push(window);
+            if (this._windowTry(ruleWindows, window)) {
+                windows.push(window);
             }
         }
         if (need_add_active && active_window) {
-            res.splice(0, 0, active_window);
+            windows.splice(0, 0, active_window);
         }
         //global.log('**************_getWindowList', res);
-        return res;
+        return windows;
     }
     _keyPressHandler(keysym, action) {
         switch (action) {
@@ -112,20 +74,11 @@ const RuleWindowSwitcherPopup = GObject.registerClass(
     }
 });
 
-const RuleIMWindowSwitcherPopup = GObject.registerClass(
-    class RuleIMWindowSwitcherPopup extends RuleWindowSwitcherPopup {
-    _init() {
-        this.all_desktops = true;
-        this.rule = rules.im;
-        super._init();
-    }
-});
-
-const RuleNotIMWindowSwitcherPopup = GObject.registerClass(
-    class RuleNotIMWindowSwitcherPopup extends RuleWindowSwitcherPopup {
+const OtherWindowSwitcherPopup = GObject.registerClass(
+    class OtherWindowSwitcherPopup extends WindowSwitcherPopup {
     _init() {
         this.all_desktops = false;
-        this.rule = rules.not_im;
+        this.is_invert = true;
         super._init();
     }
 });
@@ -133,11 +86,48 @@ const RuleNotIMWindowSwitcherPopup = GObject.registerClass(
 function setKeybinding(name, func) {
     Main.wm.setCustomKeybindingHandler(name, Shell.ActionMode.NORMAL, func);
 }
+class WindowSwitcher {
+    constructor() {
+        this._settings = ExtensionUtils.getSettings();
+        this._appSystem = Shell.AppSystem.get_default();
+        this._appIds = [];
 
-const RuleWindowSwitcherExt = new Lang.Class({
-    Name: 'RuleWindowSwitcherExt',
-    _init: function () {
-    },
+        this._appsChangedId =
+            this._appSystem.connect('installed-changed',
+                this._updateAppData.bind(this));
+
+        this._settings.connect('changed', this._updateAppConfigs.bind(this));
+        this._updateAppConfigs();
+    }
+
+    _updateAppConfigs() {
+        this._appIds = [];
+
+        this._settings.get_strv('application-list').forEach(appId => {
+            this._appIds.push(appId);
+        });
+
+        this._updateAppData();
+    }
+
+    _updateAppData() {
+        _appData = this._appIds.map(id => this._appSystem.lookup_app(id));
+    }
+
+    destroy() {
+        if (this._appsChangedId) {
+            this._appSystem.disconnect(this._appsChangedId);
+            this._appsChangedId = 0;
+        }
+
+        if (this._settings) {
+            this._settings.run_dispose();
+            this._settings = null;
+        }
+
+        this._appIds = [];
+        this._updateAppData();
+    }
 
     _startSwitcher(display, window, binding) {
         let constructor = null;
@@ -147,11 +137,11 @@ const RuleWindowSwitcherExt = new Lang.Class({
         case 'switch-applications-backward':
         case 'switch-group':
         case 'switch-group-backward':
-            constructor = RuleNotIMWindowSwitcherPopup;
+            constructor = OtherWindowSwitcherPopup;
             break;
         case 'switch-windows':
         case 'switch-windows-backward':
-            constructor = RuleIMWindowSwitcherPopup;
+            constructor = WindowSwitcherPopup;
             break;
         case 'cycle-windows':
         case 'cycle-windows-backward':
@@ -177,40 +167,41 @@ const RuleWindowSwitcherExt = new Lang.Class({
 
         if (!tabPopup.show(binding.is_reversed(), binding.get_name(), binding.get_mask()))
             tabPopup.destroy();
-    },
-    enable: function () {
-      setKeybinding('switch-windows', Lang.bind(Main.wm, this._startSwitcher));
-      setKeybinding('switch-applications', Lang.bind(Main.wm, this._startSwitcher));
-      setKeybinding('switch-applications-backward', Lang.bind(Main.wm, this._startSwitcher));
-      setKeybinding('switch-windows-backward', Lang.bind(Main.wm, this._startSwitcher));
-
-
-    },
-    disable: function () {
-      setKeybinding('switch-windows', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
-      setKeybinding('switch-windows-backward', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
-      setKeybinding('switch-applications', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
-      setKeybinding('switch-group', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
-      setKeybinding('switch-applications-backward', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
-      setKeybinding('switch-group-backward', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
-    }
-});
-
-class Extension {
-    constructor() {
-        this.extention = new RuleWindowSwitcherExt();
-        this.enable();
     }
 
-    enable() {
-        this.extention.enable();
+    enable () {
+        global.log('**************enable', this._startSwitcher);
+        setKeybinding('switch-windows', Lang.bind(Main.wm, this._startSwitcher));
+        setKeybinding('switch-applications', Lang.bind(Main.wm, this._startSwitcher));
+        setKeybinding('switch-applications-backward', Lang.bind(Main.wm, this._startSwitcher));
+        setKeybinding('switch-windows-backward', Lang.bind(Main.wm, this._startSwitcher));
+      }
+
+    disable () {
+        setKeybinding('switch-windows', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
+        setKeybinding('switch-windows-backward', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
+        setKeybinding('switch-applications', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
+        setKeybinding('switch-group', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
+        setKeybinding('switch-applications-backward', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
+        setKeybinding('switch-group-backward', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
     }
 
-    disable() {
-        this.extention.disable();
-    }
 }
 
+/** */
 function init() {
-    return new Extension();
+}
+
+
+/** */
+function enable() {
+
+    windowSwitcher = new WindowSwitcher();
+    windowSwitcher.enable();
+}
+
+/** */
+function disable() {
+    windowSwitcher.disable();
+    windowSwitcher.destroy();
 }
