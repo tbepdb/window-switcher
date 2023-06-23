@@ -3,7 +3,6 @@
 /* exported init enable disable */
 
 const {Shell, Meta} = imports.gi;
-const Lang = imports.lang;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
@@ -170,20 +169,19 @@ class WindowSwitcher {
     }
 
     enable () {
-        global.log('**************enable', this._startSwitcher);
-        setKeybinding('switch-windows', Lang.bind(Main.wm, this._startSwitcher));
-        setKeybinding('switch-applications', Lang.bind(Main.wm, this._startSwitcher));
-        setKeybinding('switch-applications-backward', Lang.bind(Main.wm, this._startSwitcher));
-        setKeybinding('switch-windows-backward', Lang.bind(Main.wm, this._startSwitcher));
+        setKeybinding('switch-windows', this._startSwitcher.bind(Main.wm));
+        setKeybinding('switch-applications', this._startSwitcher.bind(Main.wm));
+        setKeybinding('switch-applications-backward', this._startSwitcher.bind(Main.wm));
+        setKeybinding('switch-windows-backward', this._startSwitcher.bind(Main.wm));
       }
 
     disable () {
-        setKeybinding('switch-windows', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
-        setKeybinding('switch-windows-backward', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
-        setKeybinding('switch-applications', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
-        setKeybinding('switch-group', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
-        setKeybinding('switch-applications-backward', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
-        setKeybinding('switch-group-backward', Lang.bind(Main.wm, Main.wm._startWindowSwitcher || Main.wm._startSwitcher));
+        setKeybinding('switch-windows', (Main.wm._startWindowSwitcher || Main.wm._startSwitcher).bind(Main.wm));
+        setKeybinding('switch-windows-backward', (Main.wm._startWindowSwitcher || Main.wm._startSwitcher).bind(Main.wm));
+        setKeybinding('switch-applications', (Main.wm._startWindowSwitcher || Main.wm._startSwitcher).bind(Main.wm));
+        setKeybinding('switch-group', (Main.wm._startWindowSwitcher || Main.wm._startSwitcher).bind(Main.wm));
+        setKeybinding('switch-applications-backward', (Main.wm._startWindowSwitcher || Main.wm._startSwitcher).bind(Main.wm));
+        setKeybinding('switch-group-backward', (Main.wm._startWindowSwitcher || Main.wm._startSwitcher).bind(Main.wm));
     }
 
 }
