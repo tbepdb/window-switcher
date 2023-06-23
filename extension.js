@@ -130,7 +130,6 @@ class WindowSwitcher {
 
     _startSwitcher(display, window, binding) {
         let constructor = null;
-        // global.log('**************_startSwitcher', binding.get_name());
         switch (binding.get_name()) {
         case 'switch-applications':
         case 'switch-applications-backward':
@@ -202,4 +201,5 @@ function enable() {
 function disable() {
     windowSwitcher.disable();
     windowSwitcher.destroy();
+    _appData = null;
 }
