@@ -1,6 +1,6 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Windows Switcher GNOME Shell Extension
+# Copyright (C) 2024 Tbepdb <tbepdb@gmail.com>
+# This file is distributed under the same license as the Windows Switcher package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
