@@ -5,9 +5,11 @@
 const {Shell, Meta} = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
+//~ const Me = ExtensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const { GObject } = imports.gi;
 const AltTab = imports.ui.altTab;
+
 
 let _appData;
 let windowSwitcher;
@@ -16,7 +18,6 @@ const WindowSwitcherPopup = GObject.registerClass(
     class WindowSwitcherPopup extends AltTab.WindowSwitcherPopup {
     all_desktops = true;
     is_invert = false;
-    show_minimized = false; // TODO: add configurable option
     _init() {
         super._init();
     }
@@ -39,16 +40,21 @@ const WindowSwitcherPopup = GObject.registerClass(
         let windows = [];
         let active_window = null;
         let need_add_active = false;
+        //~ let settings = ExtensionUtils.getSettings();
+        //~ let show_minimized = ExtensionUtils.getSettings().get_boolean("show-minimized");
         if (this.all_desktops) {
             workspace = null;
         }
         const ruleWindows = this._getRuleWindowList();
-        // global.log('**************_getWindowList', ruleWindows, global.display.get_tab_list(Meta.TabList.NORMAL, workspace));
+        //global.log('**************_getWindowList', ruleWindows, global.display.get_tab_list(Meta.TabList.NORMAL, workspace));
         for (let window of global.display.get_tab_list(Meta.TabList.NORMAL, workspace)) {
             if (window.has_focus()) {
                 active_window = window;
                 need_add_active = !(this._windowTry(ruleWindows, window));
             }
+            global.log("show minimmized ?",this.show_minimized);
+            //~ global.log("is minimized ?", window.minimized);
+            //~ global.log("so, show ?", !(window.minimized && !show_minimized));
             if (this._windowTry(ruleWindows, window) && !(window.minimized && !this.show_minimized)) {
                 windows.push(window);
             }
@@ -77,7 +83,8 @@ const WindowSwitcherPopup = GObject.registerClass(
 const OtherWindowSwitcherPopup = GObject.registerClass(
     class OtherWindowSwitcherPopup extends WindowSwitcherPopup {
     _init() {
-        this.all_desktops = true; // TODO: add configurable option
+        this.all_desktops =  ExtensionUtils.getSettings().get_boolean("all-desktops");
+        this.show_minimized = ExtensionUtils.getSettings().get_boolean("show-minimized");
         this.is_invert = true;
         super._init();
     }

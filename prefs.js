@@ -263,5 +263,57 @@ function init() {
  * @returns {Gtk.Widget} - the prefs widget
  */
 function buildPrefsWidget() {
-    return new AutoMoveSettingsWidget();
+    return new Gtk.Label({
+        label: "Settings",
+    });
+}
+/**
+ * This function is called when the preferences window is first created to fill
+ * the `Adw.PreferencesWindow`.
+ *
+ * If this function is defined, `buildPrefsWidget()` will NOT be called.
+ *
+ * @param {Adw.PreferencesWindow} window - The preferences window
+ */
+function fillPreferencesWindow(window) {
+    // Create a preferences page, with a single group
+    const page = new Adw.PreferencesPage({
+        title: _('General'),
+        icon_name: 'dialog-information-symbolic',
+    });
+    window.add(page);
+
+    const group = new Adw.PreferencesGroup({
+        title: _('Configure'),
+        description: _('Configure what the switch show'),
+    });
+    page.add(group);
+
+    // Create a new preferences row
+    const workspaceSwitch = new Gtk.Switch({});
+    workspaceSwitch.set_valign(Gtk.Align.CENTER);
+    const workspaceRow = new Adw.ActionRow({
+        title: _('Show from all workspace'),
+        subtitle: _('Whether to show windows from all workspace or only current workspace'),
+    });
+    workspaceRow.add_suffix(workspaceSwitch);
+    group.add(workspaceRow);
+
+    const minimizedSwitch = new Gtk.Switch({});
+    minimizedSwitch.set_valign(Gtk.Align.CENTER);
+    const minimizedRow = new Adw.ActionRow({
+        title: _('Show minimized windows'),
+        subtitle: _('Whether to show minimized windows in switch or not'),
+    });
+    minimizedRow.add_suffix(minimizedSwitch);
+    group.add(minimizedRow);
+
+    page.add(new AutoMoveSettingsWidget());
+
+    // Create a settings object and bind the row to the `show-indicator` key
+    window._settings = ExtensionUtils.getSettings();
+    window._settings.bind('all-desktops', workspaceSwitch, 'active',
+        Gio.SettingsBindFlags.DEFAULT);
+    window._settings.bind('show-minimized', minimizedSwitch, 'active',
+        Gio.SettingsBindFlags.DEFAULT);
 }
