@@ -5,7 +5,6 @@
 const {Shell, Meta} = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
-//~ const Me = ExtensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const { GObject } = imports.gi;
 const AltTab = imports.ui.altTab;
@@ -40,8 +39,6 @@ const WindowSwitcherPopup = GObject.registerClass(
         let windows = [];
         let active_window = null;
         let need_add_active = false;
-        //~ let settings = ExtensionUtils.getSettings();
-        //~ let show_minimized = ExtensionUtils.getSettings().get_boolean("show-minimized");
         if (this.all_desktops) {
             workspace = null;
         }
@@ -52,9 +49,6 @@ const WindowSwitcherPopup = GObject.registerClass(
                 active_window = window;
                 need_add_active = !(this._windowTry(ruleWindows, window));
             }
-            global.log("show minimmized ?",this.show_minimized);
-            //~ global.log("is minimized ?", window.minimized);
-            //~ global.log("so, show ?", !(window.minimized && !show_minimized));
             if (this._windowTry(ruleWindows, window) && !(window.minimized && !this.show_minimized)) {
                 windows.push(window);
             }
