@@ -16,6 +16,7 @@ const WindowSwitcherPopup = GObject.registerClass(
     class WindowSwitcherPopup extends AltTab.WindowSwitcherPopup {
     all_desktops = true;
     is_invert = false;
+    show_minimized = false; // TODO: add configurable option
     _init() {
         super._init();
     }
@@ -48,7 +49,7 @@ const WindowSwitcherPopup = GObject.registerClass(
                 active_window = window;
                 need_add_active = !(this._windowTry(ruleWindows, window));
             }
-            if (this._windowTry(ruleWindows, window)) {
+            if (this._windowTry(ruleWindows, window) && !(window.minimized && !this.show_minimized)) {
                 windows.push(window);
             }
         }
@@ -76,7 +77,7 @@ const WindowSwitcherPopup = GObject.registerClass(
 const OtherWindowSwitcherPopup = GObject.registerClass(
     class OtherWindowSwitcherPopup extends WindowSwitcherPopup {
     _init() {
-        this.all_desktops = false;
+        this.all_desktops = true; // TODO: add configurable option
         this.is_invert = true;
         super._init();
     }
@@ -192,7 +193,6 @@ function init() {
 
 /** */
 function enable() {
-
     windowSwitcher = new WindowSwitcher();
     windowSwitcher.enable();
 }
