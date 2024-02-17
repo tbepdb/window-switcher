@@ -1,0 +1,54 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-02-17 16:35+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: prefs.js:136
+msgid "Win + Tab switch applications"
+msgstr ""
+
+#: prefs.js:222
+msgid "Add Rule"
+msgstr ""
+
+#: prefs.js:281
+msgid "General"
+msgstr ""
+
+#: prefs.js:287
+msgid "Configure"
+msgstr ""
+
+#: prefs.js:288
+msgid "Configure what the switch show"
+msgstr ""
+
+#: prefs.js:296
+msgid "Show from all workspace"
+msgstr ""
+
+#: prefs.js:297
+msgid "Whether to show windows from all workspace or only current workspace"
+msgstr ""
+
+#: prefs.js:305
+msgid "Show minimized windows"
+msgstr ""
+
+#: prefs.js:306
+msgid "Whether to show minimized windows in switch or not"
+msgstr ""
