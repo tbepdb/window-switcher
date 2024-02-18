@@ -6,5 +6,11 @@
       <summary>Application list</summary>
       <description>A list of strings, each containing an application id (desktop file name)</description>
     </key>
+    <key name="show-minimized" type="b">
+      <default>true</default>
+    </key>
+    <key name="all-desktops" type="b">
+      <default>false</default>
+    </key>
   </schema>
 </schemalist>

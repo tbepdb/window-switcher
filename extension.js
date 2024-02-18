@@ -9,6 +9,7 @@ const Main = imports.ui.main;
 const { GObject } = imports.gi;
 const AltTab = imports.ui.altTab;
 
+
 let _appData;
 let windowSwitcher;
 
@@ -42,13 +43,13 @@ const WindowSwitcherPopup = GObject.registerClass(
             workspace = null;
         }
         const ruleWindows = this._getRuleWindowList();
-        // global.log('**************_getWindowList', ruleWindows, global.display.get_tab_list(Meta.TabList.NORMAL, workspace));
+        //global.log('**************_getWindowList', ruleWindows, global.display.get_tab_list(Meta.TabList.NORMAL, workspace));
         for (let window of global.display.get_tab_list(Meta.TabList.NORMAL, workspace)) {
             if (window.has_focus()) {
                 active_window = window;
                 need_add_active = !(this._windowTry(ruleWindows, window));
             }
-            if (this._windowTry(ruleWindows, window)) {
+            if (this._windowTry(ruleWindows, window) && !(window.minimized && !this.show_minimized)) {
                 windows.push(window);
             }
         }
@@ -76,7 +77,8 @@ const WindowSwitcherPopup = GObject.registerClass(
 const OtherWindowSwitcherPopup = GObject.registerClass(
     class OtherWindowSwitcherPopup extends WindowSwitcherPopup {
     _init() {
-        this.all_desktops = false;
+        this.all_desktops =  ExtensionUtils.getSettings().get_boolean("all-desktops");
+        this.show_minimized = ExtensionUtils.getSettings().get_boolean("show-minimized");
         this.is_invert = true;
         super._init();
     }
@@ -192,7 +194,6 @@ function init() {
 
 /** */
 function enable() {
-
     windowSwitcher = new WindowSwitcher();
     windowSwitcher.enable();
 }

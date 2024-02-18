@@ -1,0 +1,39 @@
+# Windows Switcher GNOME Shell Extension
+# Copyright (C) 2024 Tbepdb <tbepdb@gmail.com>
+# This file is distributed under the same license as the Windows Switcher package.
+#
+# alberic89 <alberic89@gmx.com>, 2024.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-02-18 14:23+0100\n"
+"PO-Revision-Date: 2024-02-18 14:37+0100\n"
+"Last-Translator: alberic89 <alberic89@gmx.com>\n"
+"Language-Team: French \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 22.12.3\n"
+
+#: prefs.js:136
+msgid "Win + Tab switch applications"
+msgstr "Basculer sur ces applications avec Super + Tab"
+
+#: prefs.js:222
+msgid "Add Rule"
+msgstr "Ajouter une application"
+
+#: prefs.js:284
+msgid "Behavior"
+msgstr "Comportement"
+
+#: prefs.js:292
+msgid "Show windows of all workspace"
+msgstr "Afficher les fenêtres de tous les espaces de travail"
+
+#: prefs.js:300
+msgid "Show minimized windows"
+msgstr "Afficher les fenêtres minimisées"
