@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-17 16:35+0100\n"
+"POT-Creation-Date: 2024-02-18 14:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,30 +25,14 @@ msgstr ""
 msgid "Add Rule"
 msgstr ""
 
-#: prefs.js:281
-msgid "General"
+#: prefs.js:284
+msgid "Behavior"
 msgstr ""
 
-#: prefs.js:287
-msgid "Configure"
+#: prefs.js:292
+msgid "Show windows of all workspace"
 msgstr ""
 
-#: prefs.js:288
-msgid "Configure what the switch show"
-msgstr ""
-
-#: prefs.js:296
-msgid "Show from all workspace"
-msgstr ""
-
-#: prefs.js:297
-msgid "Whether to show windows from all workspace or only current workspace"
-msgstr ""
-
-#: prefs.js:305
+#: prefs.js:300
 msgid "Show minimized windows"
-msgstr ""
-
-#: prefs.js:306
-msgid "Whether to show minimized windows in switch or not"
 msgstr ""

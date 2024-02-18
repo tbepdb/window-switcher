@@ -264,7 +264,7 @@ function init() {
  */
 function buildPrefsWidget() {
     return new Gtk.Label({
-        label: "Settings",
+        label: "Window Switcher",
     });
 }
 /**
@@ -277,15 +277,11 @@ function buildPrefsWidget() {
  */
 function fillPreferencesWindow(window) {
     // Create a preferences page, with a single group
-    const page = new Adw.PreferencesPage({
-        title: _('General'),
-        icon_name: 'dialog-information-symbolic',
-    });
+    const page = new Adw.PreferencesPage({});
     window.add(page);
 
     const group = new Adw.PreferencesGroup({
-        title: _('Configure'),
-        description: _('Configure what the switch show'),
+        title: _('Behavior'),
     });
     page.add(group);
 
@@ -293,8 +289,7 @@ function fillPreferencesWindow(window) {
     const workspaceSwitch = new Gtk.Switch({});
     workspaceSwitch.set_valign(Gtk.Align.CENTER);
     const workspaceRow = new Adw.ActionRow({
-        title: _('Show from all workspace'),
-        subtitle: _('Whether to show windows from all workspace or only current workspace'),
+        title: _('Show windows of all workspace'),
     });
     workspaceRow.add_suffix(workspaceSwitch);
     group.add(workspaceRow);
@@ -303,7 +298,6 @@ function fillPreferencesWindow(window) {
     minimizedSwitch.set_valign(Gtk.Align.CENTER);
     const minimizedRow = new Adw.ActionRow({
         title: _('Show minimized windows'),
-        subtitle: _('Whether to show minimized windows in switch or not'),
     });
     minimizedRow.add_suffix(minimizedSwitch);
     group.add(minimizedRow);
